@@ -1,0 +1,55 @@
+{{define "profile"}}
+
+{{template "header" .}}
+
+<section class="profile-page">
+
+    <div class="profile-heading">
+        <h1>Профиль</h1>
+        <p>Информация о вашем аккаунте в ЛинкТайм.</p>
+    </div>
+
+    <section class="profile-card">
+
+        <div class="profile-summary">
+            <div class="profile-avatar" aria-hidden="true">●</div>
+
+            <div class="profile-summary__content">
+                <h2>{{.Name}}</h2>
+                <p>{{.Email}}</p>
+            </div>
+        </div>
+
+        <dl class="profile-details">
+            <div class="profile-row">
+                <dt>Имя</dt>
+                <dd>{{.Name}}</dd>
+            </div>
+
+            <div class="profile-row">
+                <dt>Email</dt>
+                <dd>{{.Email}}</dd>
+            </div>
+
+            <div class="profile-row">
+                <dt>ID пользователя</dt>
+                <dd class="profile-id">{{.Id}}</dd>
+            </div>
+
+            <div class="profile-row">
+                <dt>Аккаунт создан</dt>
+                <dd>{{.CreatedAt.Format "02.01.2006 15:04"}}</dd>
+            </div>
+
+            <div class="profile-row">
+                <dt>Последнее обновление</dt>
+                <dd>{{.UpdatedAt.Format "02.01.2006 15:04"}}</dd>
+            </div>
+        </dl>
+
+    </section>
+
+</section>
+
+{{template "footer" .}}
+{{end}}

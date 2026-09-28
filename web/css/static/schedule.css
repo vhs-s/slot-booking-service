@@ -1,0 +1,309 @@
+.schedule-page {
+    max-width: 760px;
+    padding: 48px 0 60px;
+}
+
+.schedule-heading {
+    margin-bottom: 28px;
+}
+
+.schedule-heading__top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 8px;
+}
+
+.schedule-heading h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+.schedule-heading p {
+    max-width: 650px;
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.slot-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.slot-duration span {
+    color: #777;
+    font-size: 12px;
+}
+
+.slot-duration select {
+    min-width: 140px;
+    height: 38px;
+    padding: 0 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    color: #222;
+    background: #fff;
+
+    font-size: 13px;
+}
+
+.slot-duration select:focus {
+    outline: 2px solid #dcd9ff;
+    border-color: #6257e8;
+}
+
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.schedule-day {
+    padding: 20px;
+
+    background: #fff;
+
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.schedule-day__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.day-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    cursor: pointer;
+}
+
+.day-toggle input {
+    width: 17px;
+    height: 17px;
+
+    accent-color: #6257e8;
+}
+
+.day-toggle strong {
+    font-size: 15px;
+}
+
+.day-disabled-text {
+    color: #999;
+    font-size: 13px;
+}
+
+.availability-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+.availability-rule {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.time-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.time-field span {
+    color: #777;
+    font-size: 12px;
+}
+
+.time-field input {
+    height: 38px;
+    padding: 0 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    color: #222;
+    background: #fff;
+}
+
+.time-field input:focus {
+    outline: 2px solid #dcd9ff;
+    border-color: #6257e8;
+}
+
+.add-rule,
+.remove-rule,
+.schedule-save {
+    border-radius: 6px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.add-rule {
+    margin-top: 14px;
+    padding: 8px 12px;
+
+    border: 1px solid #ccc;
+
+    background: #fff;
+    color: #444;
+
+    font-size: 13px;
+}
+
+.add-rule:hover {
+    background: #f5f5f5;
+}
+
+.remove-rule {
+    height: 38px;
+    padding: 0 10px;
+
+    border: 0;
+
+    background: transparent;
+    color: #c24646;
+
+    font-size: 12px;
+}
+
+.remove-rule:hover {
+    background: #fff1f1;
+}
+
+.schedule-day--disabled {
+    background: #fafafa;
+}
+
+.schedule-day--disabled .availability-rules,
+.schedule-day--disabled .add-rule {
+    display: none;
+}
+
+.schedule-timezone {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+
+    margin-top: 24px;
+    padding-top: 20px;
+
+    border-top: 1px solid #ddd;
+}
+
+.schedule-timezone label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.schedule-timezone select {
+    min-width: 220px;
+    height: 38px;
+    padding: 0 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    color: #222;
+    background: #fff;
+
+    font-size: 13px;
+}
+
+.schedule-timezone select:focus {
+    outline: 2px solid #dcd9ff;
+    border-color: #6257e8;
+}
+
+.schedule-timezone span {
+    color: #777;
+    font-size: 12px;
+}
+
+.schedule-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 24px;
+}
+
+.schedule-save {
+    min-height: 40px;
+    padding: 0 18px;
+
+    border: 1px solid #6257e8;
+
+    background: #6257e8;
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.schedule-save:hover {
+    background: #5147d2;
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+    .schedule-page {
+        padding: 32px 0 45px;
+    }
+
+    .schedule-heading__top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .schedule-heading h1 {
+        font-size: 26px;
+    }
+
+    .slot-duration select {
+        min-width: 160px;
+    }
+
+    .schedule-day {
+        padding: 16px;
+    }
+
+    .availability-rule {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .time-field input {
+        width: 100%;
+    }
+
+    .remove-rule {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    .schedule-timezone select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .schedule-save {
+        width: 100%;
+    }
+}

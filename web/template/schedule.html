@@ -1,0 +1,449 @@
+{{define "schedule"}}
+
+{{template "header" .}}
+
+<section class="schedule-page">
+
+    <form action="/api/schedule" method="POST" id="schedule-form">
+
+        <div class="schedule-heading">
+
+            <div class="schedule-heading__top">
+
+                <h1>Расписание</h1>
+
+                <label class="slot-duration">
+                    <span>Длительность слота</span>
+
+                    <select name="slot_duration">
+                        <option value="15">
+                            15 минут
+                        </option>
+
+                        <option value="30" selected>
+                            30 минут
+                        </option>
+
+                        <option value="45">
+                            45 минут
+                        </option>
+
+                        <option value="60">
+                            60 минут
+                        </option>
+                    </select>
+                </label>
+
+            </div>
+
+            <p>
+                Укажите дни и время, когда вы доступны для бронирования встреч.
+                Для одного дня можно добавить несколько интервалов.
+            </p>
+
+        </div>
+
+
+        <div class="schedule-list">
+
+            {{range .Days}}
+                {{$day := .}}
+
+                <section
+                    class="schedule-day"
+                    data-weekday="{{.Weekday}}"
+                >
+
+                    <div class="schedule-day__header">
+
+                        <label class="day-toggle">
+
+                            <input
+                                type="checkbox"
+                                class="day-enabled"
+                                {{if .Enabled}}checked{{end}}
+                            >
+
+                            <strong>
+                                {{.Name}}
+                            </strong>
+
+                        </label>
+
+                        <span class="day-disabled-text">
+                            Встречи недоступны
+                        </span>
+
+                    </div>
+
+
+                    <div class="availability-rules">
+
+                        {{if .Rules}}
+
+                            {{range .Rules}}
+
+                                <div class="availability-rule">
+
+                                    <input
+                                        type="hidden"
+                                        name="weekday"
+                                        value="{{$day.Weekday}}"
+                                        class="rule-input"
+                                    >
+
+                                    <label class="time-field">
+                                        <span>С</span>
+
+                                        <input
+                                            type="time"
+                                            name="start_time"
+                                            value="{{.StartTime}}"
+                                            class="rule-input start-time"
+                                            required
+                                        >
+                                    </label>
+
+                                    <label class="time-field">
+                                        <span>До</span>
+
+                                        <input
+                                            type="time"
+                                            name="end_time"
+                                            value="{{.EndTime}}"
+                                            class="rule-input end-time"
+                                            required
+                                        >
+                                    </label>
+
+                                    <button
+                                        type="button"
+                                        class="remove-rule"
+                                    >
+                                        Удалить
+                                    </button>
+
+                                </div>
+
+                            {{end}}
+
+                        {{else}}
+
+                            <div class="availability-rule">
+
+                                <input
+                                    type="hidden"
+                                    name="weekday"
+                                    value="{{.Weekday}}"
+                                    class="rule-input"
+                                >
+
+                                <label class="time-field">
+                                    <span>С</span>
+
+                                    <input
+                                        type="time"
+                                        name="start_time"
+                                        value="09:00"
+                                        class="rule-input start-time"
+                                        required
+                                    >
+                                </label>
+
+                                <label class="time-field">
+                                    <span>До</span>
+
+                                    <input
+                                        type="time"
+                                        name="end_time"
+                                        value="18:00"
+                                        class="rule-input end-time"
+                                        required
+                                    >
+                                </label>
+
+                                <button
+                                    type="button"
+                                    class="remove-rule"
+                                >
+                                    Удалить
+                                </button>
+
+                            </div>
+
+                        {{end}}
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="add-rule"
+                    >
+                        + Добавить интервал
+                    </button>
+
+                </section>
+
+            {{end}}
+
+        </div>
+
+
+        <div class="schedule-timezone">
+
+            <label for="timezone">
+                Часовой пояс
+            </label>
+
+            <select
+                id="timezone"
+                name="timezone"
+                required
+            >
+                <option value="" disabled selected>
+                    Выберите часовой пояс
+                </option>
+
+                <option value="Europe/Warsaw">
+                    Europe/Warsaw
+                </option>
+
+                <option value="Europe/Kyiv">
+                    Europe/Kyiv
+                </option>
+
+                <option value="Europe/Moscow">
+                    Europe/Moscow
+                </option>
+
+                <option value="Asia/Almaty">
+                    Asia/Almaty
+                </option>
+
+                <option value="Asia/Tbilisi">
+                    Asia/Tbilisi
+                </option>
+
+                <option value="Asia/Yerevan">
+                    Asia/Yerevan
+                </option>
+
+                <option value="UTC">
+                    UTC
+                </option>
+            </select>
+
+            <span>
+                Время встреч будет отображаться с учётом выбранного часового пояса.
+            </span>
+
+        </div>
+
+
+        <div class="schedule-actions">
+
+            <button
+                type="submit"
+                class="schedule-save"
+            >
+                Сохранить расписание
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("schedule-form");
+    const days = document.querySelectorAll(".schedule-day");
+
+    days.forEach(function (day) {
+        const checkbox = day.querySelector(".day-enabled");
+        const addButton = day.querySelector(".add-rule");
+        const disabledText = day.querySelector(".day-disabled-text");
+
+        function updateDayState() {
+            const enabled = checkbox.checked;
+
+            day.classList.toggle(
+                "schedule-day--disabled",
+                !enabled
+            );
+
+            day.querySelectorAll(".rule-input").forEach(function (input) {
+                input.disabled = !enabled;
+            });
+
+            day.querySelectorAll(".remove-rule").forEach(function (button) {
+                button.disabled = !enabled;
+            });
+
+            addButton.disabled = !enabled;
+            disabledText.hidden = enabled;
+        }
+
+        checkbox.addEventListener("change", updateDayState);
+
+        addButton.addEventListener("click", function () {
+            addRule(day);
+            updateDayState();
+        });
+
+        day.addEventListener("click", function (event) {
+            if (!event.target.classList.contains("remove-rule")) {
+                return;
+            }
+
+            const rulesContainer =
+                day.querySelector(".availability-rules");
+
+            const rules =
+                rulesContainer.querySelectorAll(".availability-rule");
+
+            if (rules.length === 1) {
+                const rule = rules[0];
+
+                rule.querySelector(".start-time").value = "09:00";
+                rule.querySelector(".end-time").value = "18:00";
+
+                checkbox.checked = false;
+
+                updateDayState();
+                return;
+            }
+
+            event.target
+                .closest(".availability-rule")
+                .remove();
+        });
+
+        updateDayState();
+    });
+
+
+    form.addEventListener("submit", function (event) {
+        let valid = true;
+
+        days.forEach(function (day) {
+            if (!day.querySelector(".day-enabled").checked) {
+                return;
+            }
+
+            const intervals = [];
+
+            day.querySelectorAll(".availability-rule").forEach(
+                function (rule) {
+
+                    const startInput =
+                        rule.querySelector(".start-time");
+
+                    const endInput =
+                        rule.querySelector(".end-time");
+
+                    startInput.setCustomValidity("");
+                    endInput.setCustomValidity("");
+
+                    if (startInput.value >= endInput.value) {
+                        endInput.setCustomValidity(
+                            "Время окончания должно быть позже времени начала"
+                        );
+
+                        valid = false;
+                    }
+
+                    intervals.push({
+                        start: startInput.value,
+                        end: endInput.value,
+                        startInput: startInput
+                    });
+                }
+            );
+
+            intervals.sort(function (a, b) {
+                return a.start.localeCompare(b.start);
+            });
+
+            for (let i = 1; i < intervals.length; i++) {
+                if (
+                    intervals[i].start <
+                    intervals[i - 1].end
+                ) {
+                    intervals[i].startInput.setCustomValidity(
+                        "Интервалы одного дня не должны пересекаться"
+                    );
+
+                    valid = false;
+                }
+            }
+        });
+
+        if (!valid) {
+            event.preventDefault();
+            form.reportValidity();
+        }
+    });
+
+
+    function addRule(day) {
+        const weekday = day.dataset.weekday;
+
+        const rulesContainer =
+            day.querySelector(".availability-rules");
+
+        const rule = document.createElement("div");
+
+        rule.className = "availability-rule";
+
+        rule.innerHTML = `
+            <input
+                type="hidden"
+                name="weekday"
+                value="${weekday}"
+                class="rule-input"
+            >
+
+            <label class="time-field">
+                <span>С</span>
+
+                <input
+                    type="time"
+                    name="start_time"
+                    value="09:00"
+                    class="rule-input start-time"
+                    required
+                >
+            </label>
+
+            <label class="time-field">
+                <span>До</span>
+
+                <input
+                    type="time"
+                    name="end_time"
+                    value="18:00"
+                    class="rule-input end-time"
+                    required
+                >
+            </label>
+
+            <button
+                type="button"
+                class="remove-rule"
+            >
+                Удалить
+            </button>
+        `;
+
+        rulesContainer.appendChild(rule);
+    }
+});
+</script>
+
+{{template "footer" .}}
+
+{{end}}

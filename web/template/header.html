@@ -1,0 +1,34 @@
+{{define "header"}}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЛинкТайм</title>
+    <link rel="stylesheet" href="/css/static/styles.css">
+    <link rel="stylesheet" href="/css/static/schedule.css">
+    <link rel="stylesheet" href="/css/static/profile.css">
+</head>
+<body>
+
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a class="logo" href="/">ЛинкТайм</a>
+
+        <nav class="nav">
+            {{if .Name}}
+                <a href="/api/users/{{.Id}}/dashboard">Встречи</a>
+                <a href="/api/users/{{.Id}}/schedule">Расписание</a>
+                
+                <a href="/api/users/{{.Id}}/profile">Профиль</a>
+                <a href="/api/users/{{.Id}}/logout">Выйти</a>
+            {{else}}
+                <a href="/api/login">Войти</a>
+                <a class="button button--nav" href="/api/register">Регистрация</a>
+            {{end}}
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+{{end}}
