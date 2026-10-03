@@ -93,7 +93,10 @@ func (am *AuthManager) checkRefreshToken(r *http.Request) (bool, string) {
 	}
 
 	cachedToken, err := am.AuthUC.TokenRepository.GetCachedToken(context.Background(), userIdStr)
-	if err != nil || cachedToken == tokenString {
+	if err != nil {
+		return false, ""
+	}
+	if cachedToken != tokenString {
 		return false, ""
 	}
 
