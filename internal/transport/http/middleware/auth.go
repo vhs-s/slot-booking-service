@@ -2,103 +2,100 @@ package middleware
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"slot-booking-service-api/internal/auth"
 )
 
 type contextKey string
 
-const UserKey contextKey = "userID"
+const (
+	UserKey    contextKey = "userID"
+	SessionKey contextKey = "sessionID"
+)
 
 func (am *AuthManager) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var tokenString string
-
-		cookieAccess, err := r.Cookie("access_token")
-		if err == nil {
-			tokenString = cookieAccess.Value
-		}
-
-		token, err := auth.ParseToken(tokenString, auth.SecretKeyAccess)
-
-		if err != nil || token == nil || !token.Valid {
-			valid, userId := am.checkRefreshToken(r)
-			if !valid {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
-				return
-			}
-
-			tp, err := auth.GenerateTokenPair(userId)
-			if err != nil {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
-				return
-			}
-
-			err = am.AuthUC.TokenRepository.SetCachedToken(r.Context(), userId, tp.RefreshToken)
-			if err != nil {
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
-				return
-			}
-
-			auth.SetAccessCookie(w, tp.AccessToken)
-			auth.SetRefreshCookie(w, tp.RefreshToken)
-
-			tokenString = tp.AccessToken
-			auth.SetAccessCookie(w, tp.AccessToken)
-			auth.SetRefreshCookie(w, tp.RefreshToken)
-		}
-
-		claims, ok := auth.ExtractClaims(tokenString, auth.SecretKeyAccess)
+		userID, sessionID, ok := am.authenticate(w, r)
 		if !ok {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 			return
 		}
 
-		userId, userIdOk := claims["user_id"].(string)
-		if !userIdOk || userId == "" {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), UserKey, userId)
+		ctx := context.WithValue(r.Context(), UserKey, userID)
+		ctx = context.WithValue(ctx, SessionKey, sessionID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func (am *AuthManager) checkRefreshToken(r *http.Request) (bool, string) {
+// OptionalAuthMiddleware adds the session to the request context when it is
+// valid, but still allows guests to access the handler.
+func (am *AuthManager) OptionalAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, sessionID, ok := am.authenticate(w, r)
+		if ok {
+			ctx := context.WithValue(r.Context(), UserKey, userID)
+			ctx = context.WithValue(ctx, SessionKey, sessionID)
+			r = r.WithContext(ctx)
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (am *AuthManager) authenticate(w http.ResponseWriter, r *http.Request) (string, string, bool) {
+	if cookieAccess, err := r.Cookie("access_token"); err == nil {
+		if claims, ok := auth.ExtractClaims(cookieAccess.Value, auth.SecretKeyAccess); ok {
+			userID, userIDOK := claims["user_id"].(string)
+			sessionID, sessionIDOK := claims["sid"].(string)
+			if userIDOK && userID != "" && sessionIDOK && sessionID != "" {
+				return userID, sessionID, true
+			}
+		}
+	}
+
+	userID, sessionID, ok := am.checkRefreshToken(r)
+	if !ok {
+		return "", "", false
+	}
+
+	accessToken, err := auth.GenerateAccessToken(userID, sessionID)
+	if err != nil {
+		log.Println("unable to generate access token:", err)
+		return "", "", false
+	}
+
+	// Keep the refresh token and its server-side session unchanged. Rotating it
+	// here makes concurrent requests invalidate each other.
+	auth.SetAccessCookie(w, accessToken)
+	return userID, sessionID, true
+}
+
+func (am *AuthManager) checkRefreshToken(r *http.Request) (string, string, bool) {
 	cookie, err := r.Cookie("refresh_token")
 	if err != nil {
-		return false, ""
+		return "", "", false
 	}
 
-	tokenString := cookie.Value
-	token, err := auth.ParseToken(tokenString, auth.SecretKeyRefresh)
-	if err != nil || token == nil || !token.Valid {
-		return false, ""
-	}
-
-	claims, ok := auth.ExtractClaims(tokenString, auth.SecretKeyRefresh)
+	claims, ok := auth.ExtractClaims(cookie.Value, auth.SecretKeyRefresh)
 	if !ok {
-		return false, ""
+		return "", "", false
 	}
 
-	userIdCookie, exists := claims["sub"]
-	if !exists || userIdCookie == nil {
-		return false, ""
+	userID, userIDOK := claims["sub"].(string)
+	sessionID, sessionIDOK := claims["sid"].(string)
+	if !userIDOK || userID == "" || !sessionIDOK || sessionID == "" {
+		return "", "", false
 	}
 
-	userIdStr, ok := userIdCookie.(string)
-	if !ok {
-		return false, ""
-	}
-
-	cachedToken, err := am.AuthUC.TokenRepository.GetCachedToken(context.Background(), userIdStr)
+	cachedToken, err := am.AuthUC.TokenRepository.GetCachedToken(r.Context(), userID, sessionID)
 	if err != nil {
-		return false, ""
+		log.Println("unable to validate refresh token:", err)
+		return "", "", false
 	}
-	if cachedToken != tokenString {
-		return false, ""
+	if cachedToken == "" || cachedToken != cookie.Value {
+		return "", "", false
 	}
 
-	return true, userIdStr
+	return userID, sessionID, true
 }

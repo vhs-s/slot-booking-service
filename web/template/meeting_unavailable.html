@@ -1,0 +1,19 @@
+{{define "meeting_unavailable"}}
+
+{{template "header" .}}
+
+<section class="booking-page booking-success meeting-unavailable">
+    <div class="booking-card">
+        <span class="booking-success__icon" aria-hidden="true">✓</span>
+        <h1>{{.Title}}</h1>
+        <p>{{.Message}}</p>
+
+        <a class="booking-submit booking-success__link" href="{{.NewMeetingURL}}">
+            Назначить новую встречу
+        </a>
+        <a class="booking-success__back" href="{{.DashboardURL}}">Вернуться к встречам</a>
+    </div>
+</section>
+
+{{template "footer" .}}
+{{end}}

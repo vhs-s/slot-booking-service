@@ -40,31 +40,45 @@ func (m *MockTokenRepo) EXPECT() *MockTokenRepoMockRecorder {
 	return m.recorder
 }
 
-// GetCachedToken mocks base method.
-func (m *MockTokenRepo) GetCachedToken(ctx context.Context, userId string) (string, error) {
+// DeleteCachedToken mocks base method.
+func (m *MockTokenRepo) DeleteCachedToken(ctx context.Context, userId, sessionId string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCachedToken", ctx, userId)
+	ret := m.ctrl.Call(m, "DeleteCachedToken", ctx, userId, sessionId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteCachedToken indicates an expected call of DeleteCachedToken.
+func (mr *MockTokenRepoMockRecorder) DeleteCachedToken(ctx, userId, sessionId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCachedToken", reflect.TypeOf((*MockTokenRepo)(nil).DeleteCachedToken), ctx, userId, sessionId)
+}
+
+// GetCachedToken mocks base method.
+func (m *MockTokenRepo) GetCachedToken(ctx context.Context, userId, sessionId string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCachedToken", ctx, userId, sessionId)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCachedToken indicates an expected call of GetCachedToken.
-func (mr *MockTokenRepoMockRecorder) GetCachedToken(ctx, userId any) *gomock.Call {
+func (mr *MockTokenRepoMockRecorder) GetCachedToken(ctx, userId, sessionId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCachedToken", reflect.TypeOf((*MockTokenRepo)(nil).GetCachedToken), ctx, userId)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCachedToken", reflect.TypeOf((*MockTokenRepo)(nil).GetCachedToken), ctx, userId, sessionId)
 }
 
 // SetCachedToken mocks base method.
-func (m *MockTokenRepo) SetCachedToken(ctx context.Context, userId, token string) error {
+func (m *MockTokenRepo) SetCachedToken(ctx context.Context, userId, sessionId, token string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetCachedToken", ctx, userId, token)
+	ret := m.ctrl.Call(m, "SetCachedToken", ctx, userId, sessionId, token)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetCachedToken indicates an expected call of SetCachedToken.
-func (mr *MockTokenRepoMockRecorder) SetCachedToken(ctx, userId, token any) *gomock.Call {
+func (mr *MockTokenRepoMockRecorder) SetCachedToken(ctx, userId, sessionId, token any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCachedToken", reflect.TypeOf((*MockTokenRepo)(nil).SetCachedToken), ctx, userId, token)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCachedToken", reflect.TypeOf((*MockTokenRepo)(nil).SetCachedToken), ctx, userId, sessionId, token)
 }

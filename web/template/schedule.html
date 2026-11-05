@@ -4,7 +4,7 @@
 
 <section class="schedule-page">
 
-    <form action="/api/schedule" method="POST" id="schedule-form">
+    <form action="/api/users/{{.Id}}/schedule" method="POST" id="schedule-form">
 
         <div class="schedule-heading">
 
@@ -16,19 +16,19 @@
                     <span>Длительность слота</span>
 
                     <select name="slot_duration">
-                        <option value="15">
+                        <option value="15" {{if eq .SlotDuration 15}}selected{{end}}>
                             15 минут
                         </option>
 
-                        <option value="30" selected>
+                        <option value="30" {{if eq .SlotDuration 30}}selected{{end}}>
                             30 минут
                         </option>
 
-                        <option value="45">
+                        <option value="45" {{if eq .SlotDuration 45}}selected{{end}}>
                             45 минут
                         </option>
 
-                        <option value="60">
+                        <option value="60" {{if eq .SlotDuration 60}}selected{{end}}>
                             60 минут
                         </option>
                     </select>
@@ -201,35 +201,35 @@
                 name="timezone"
                 required
             >
-                <option value="" disabled selected>
+                <option value="" disabled {{if not .Timezone}}selected{{end}}>
                     Выберите часовой пояс
                 </option>
 
-                <option value="Europe/Warsaw">
+                <option value="Europe/Warsaw" {{if eq .Timezone "Europe/Warsaw"}}selected{{end}}>
                     Europe/Warsaw
                 </option>
 
-                <option value="Europe/Kyiv">
+                <option value="Europe/Kyiv" {{if eq .Timezone "Europe/Kyiv"}}selected{{end}}>
                     Europe/Kyiv
                 </option>
 
-                <option value="Europe/Moscow">
+                <option value="Europe/Moscow" {{if eq .Timezone "Europe/Moscow"}}selected{{end}}>
                     Europe/Moscow
                 </option>
 
-                <option value="Asia/Almaty">
+                <option value="Asia/Almaty" {{if eq .Timezone "Asia/Almaty"}}selected{{end}}>
                     Asia/Almaty
                 </option>
 
-                <option value="Asia/Tbilisi">
+                <option value="Asia/Tbilisi" {{if eq .Timezone "Asia/Tbilisi"}}selected{{end}}>
                     Asia/Tbilisi
                 </option>
 
-                <option value="Asia/Yerevan">
+                <option value="Asia/Yerevan" {{if eq .Timezone "Asia/Yerevan"}}selected{{end}}>
                     Asia/Yerevan
                 </option>
 
-                <option value="UTC">
+                <option value="UTC" {{if eq .Timezone "UTC"}}selected{{end}}>
                     UTC
                 </option>
             </select>

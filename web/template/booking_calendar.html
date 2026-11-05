@@ -1,0 +1,91 @@
+{{define "booking_calendar"}}
+
+{{template "header" .}}
+
+<section class="booking-page">
+    <div class="booking-heading">
+        <span class="booking-heading__label">{{.Title}}</span>
+        <h1>Встреча с {{.HostName}}</h1>
+        <p>Выберите удобные дату и время. Часовой пояс: {{.Timezone}}.</p>
+    </div>
+
+    {{if .Error}}
+        <div class="booking-alert" role="alert">{{.Error}}</div>
+    {{end}}
+
+    <section class="booking-card">
+        <form class="booking-date-form" action="/book/{{.CalendarUserId}}" method="GET">
+            <label for="booking-date">Дата встречи</label>
+            <div class="booking-date-form__controls">
+                <input
+                    id="booking-date"
+                    type="date"
+                    name="date"
+                    value="{{.Date}}"
+                    min="{{.MinDate}}"
+                    max="{{.MaxDate}}"
+                    required
+                >
+                <button type="submit" class="button button--nav">Показать время</button>
+            </div>
+        </form>
+
+        {{if .Slots}}
+            <form class="booking-form" action="/book/{{.CalendarUserId}}" method="POST">
+                <input type="hidden" name="date" value="{{.Date}}">
+
+                <fieldset class="booking-slots">
+                    <legend>Доступное время</legend>
+                    <div class="booking-slots__list">
+                        {{range $index, $slot := .Slots}}
+                            <label class="booking-slot">
+                                <input
+                                    type="radio"
+                                    name="time"
+                                    value="{{$slot.Value}}"
+                                    {{if eq $index 0}}checked{{end}}
+                                    required
+                                >
+                                <span>{{$slot.Label}}</span>
+                            </label>
+                        {{end}}
+                    </div>
+                </fieldset>
+
+                <div class="booking-fields">
+                    <label class="booking-field">
+                        <span>Ваше имя *</span>
+                        <input type="text" name="guest_name" value="{{.Form.GuestName}}" maxlength="100" autocomplete="name" required>
+                    </label>
+
+                    <label class="booking-field">
+                        <span>Email *</span>
+                        <input type="email" name="guest_email" value="{{.Form.GuestEmail}}" maxlength="254" autocomplete="email" required>
+                    </label>
+
+                    <label class="booking-field booking-field--wide">
+                        <span>Тема встречи *</span>
+                        <input type="text" name="topic" value="{{.Form.Topic}}" maxlength="200" required>
+                    </label>
+
+                    <label class="booking-field booking-field--wide">
+                        <span>Ссылка на встречу *</span>
+                        <input type="url" name="meeting_url" value="{{.Form.MeetingURL}}" maxlength="2048" placeholder="https://..." required>
+                    </label>
+
+                    <label class="booking-field booking-field--wide">
+                        <span>Комментарий</span>
+                        <textarea name="comment" maxlength="2000" rows="4">{{.Form.Comment}}</textarea>
+                    </label>
+                </div>
+
+                <button type="submit" class="booking-submit">Забронировать встречу</button>
+            </form>
+        {{else}}
+            <p class="booking-empty">На выбранную дату свободного времени нет. Попробуйте другой день.</p>
+        {{end}}
+    </section>
+</section>
+
+{{template "footer" .}}
+{{end}}

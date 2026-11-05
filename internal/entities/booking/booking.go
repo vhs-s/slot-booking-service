@@ -1,8 +1,11 @@
 package booking
 
 import (
+	"errors"
 	"time"
 )
+
+var ErrSlotUnavailable = errors.New("time slot is unavailable")
 
 type BookingStatus string
 

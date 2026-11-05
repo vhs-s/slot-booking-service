@@ -23,7 +23,7 @@ func TestCheckRefreshToken_ValidToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	tokenRepo := mocks.NewMockTokenRepo(ctrl)
 	tokenRepo.EXPECT().
-		GetCachedToken(gomock.Any(), userID).
+		GetCachedToken(gomock.Any(), userID, tokenPair.SessionID).
 		Return(tokenPair.RefreshToken, nil).
 		Times(1)
 
@@ -34,12 +34,15 @@ func TestCheckRefreshToken_ValidToken(t *testing.T) {
 		Value: tokenPair.RefreshToken,
 	})
 
-	valid, gotUserID := manager.checkRefreshToken(request)
+	gotUserID, gotSessionID, valid := manager.checkRefreshToken(request)
 
 	if !valid {
 		t.Fatal("expected matching refresh token to be valid")
 	}
 	if gotUserID != userID {
 		t.Errorf("user ID = %q, want %q", gotUserID, userID)
+	}
+	if gotSessionID != tokenPair.SessionID {
+		t.Errorf("session ID = %q, want %q", gotSessionID, tokenPair.SessionID)
 	}
 }

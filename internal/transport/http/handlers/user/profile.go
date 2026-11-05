@@ -1,42 +1,56 @@
 package handlers
 
 import (
-	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"slot-booking-service-api/internal/auth"
+
 	dto "slot-booking-service-api/internal/dto/user"
 	"slot-booking-service-api/internal/repositories/postgres/user"
-	"text/template"
+	"slot-booking-service-api/internal/transport/http/middleware"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func (uh *UserHandler) ProfileHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
-			t, err := template.ParseFiles("web/template/header.html", "web/template/profile.html", "web/template/footer.html")
-			if err != nil {
-				log.Println("Error parse template", err)
-			}
+		if r.Method != http.MethodGet {
+			w.Header().Set("Allow", http.MethodGet)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
-			cookieAccess, err := r.Cookie("access_token")
-			if err != nil {
-				http.Redirect(w, r, "/api/login", http.StatusSeeOther)
-			}
-			tokenString := cookieAccess.Value
-			claims, _ := auth.ExtractClaims(tokenString, auth.SecretKeyAccess)
-			userId, _ := claims["user_id"].(string)
+		userID, ok := r.Context().Value(middleware.UserKey).(string)
+		if !ok || userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if pathUserID := chi.URLParam(r, "id"); pathUserID != "" && pathUserID != userID {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
 
-			ur, _ := uh.UserUC.UserRepository.GetById(r.Context(), userId)
-			ue := user.ToUserEntity(ur)
-			udto := dto.ToGetUserDto(ue)
-			t.ExecuteTemplate(w, "profile", udto)
-			break
-		case http.MethodPost:
-			r.ParseForm()
-			email := r.Form.Get("email")
-			password := r.Form.Get("password")
-			fmt.Println(email, " ", password)
+		ur, err := uh.UserUC.UserRepository.GetById(r.Context(), userID)
+		if err != nil {
+			log.Println("Error get user for profile:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		if ur == nil {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+		data := dto.ToGetUserDto(user.ToUserEntity(ur))
+
+		t, err := template.ParseFiles("web/template/header.html", "web/template/profile.html", "web/template/footer.html")
+		if err != nil {
+			log.Println("Error parse profile template:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		if err := t.ExecuteTemplate(w, "profile", data); err != nil {
+			log.Println("Error execute profile template:", err)
 		}
 	}
 }

@@ -3,9 +3,9 @@ package handlers
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"html/template"
 	"log"
 	"net/http"
-	"text/template"
 
 	"slot-booking-service-api/internal/auth"
 	"slot-booking-service-api/internal/repositories/postgres/user"
@@ -38,19 +38,18 @@ func (uh *UserHandler) SignInHandler() http.HandlerFunc {
 
 			if email == "" || password == "" {
 				log.Println("Login failed: empty email or password")
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 				return
 			}
-			log.Println("email from form:", email)
-
 			ur, err := uh.UserUC.UserRepository.GetByEmail(r.Context(), email)
 
-			log.Println("GetByEmail result:", ur)
-			log.Println("GetByEmail error:", err)
-
 			if err != nil {
-				log.Println("Login failed: user not found:", err)
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				log.Println("Login failed: get user:", err)
+				http.Redirect(w, r, "/api/login", http.StatusSeeOther)
+				return
+			}
+			if ur == nil {
+				http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 				return
 			}
 
@@ -63,7 +62,7 @@ func (uh *UserHandler) SignInHandler() http.HandlerFunc {
 
 			if hexHash != ue.PasswordHash {
 				log.Println("Login failed: invalid password")
-				http.Redirect(w, r, "/login", http.StatusSeeOther)
+				http.Redirect(w, r, "/api/login", http.StatusSeeOther)
 				return
 			}
 
@@ -74,7 +73,7 @@ func (uh *UserHandler) SignInHandler() http.HandlerFunc {
 				return
 			}
 
-			err = uh.AuthUC.TokenRepository.SetCachedToken(r.Context(), ue.Id, tokenPair.RefreshToken)
+			err = uh.AuthUC.TokenRepository.SetCachedToken(r.Context(), ue.Id, tokenPair.SessionID, tokenPair.RefreshToken)
 			if err != nil {
 				log.Println("SetCachedToken error:", err)
 				http.Error(w, "Internal server error", http.StatusInternalServerError)

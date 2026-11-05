@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+.idea
+.vscode
+Dockerfile
+compose.yaml
+docker-compose.yml
+*.md
+*.out
+*.test
+coverage.*
+tmp

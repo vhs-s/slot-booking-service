@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/css/static/styles.css">
     <link rel="stylesheet" href="/css/static/schedule.css">
     <link rel="stylesheet" href="/css/static/profile.css">
+    <link rel="stylesheet" href="/css/static/booking.css">
 </head>
 <body>
 
@@ -16,7 +17,7 @@
         <a class="logo" href="/">ЛинкТайм</a>
 
         <nav class="nav">
-            {{if .Name}}
+            {{if and . .Id}}
                 <a href="/api/users/{{.Id}}/dashboard">Встречи</a>
                 <a href="/api/users/{{.Id}}/schedule">Расписание</a>
                 

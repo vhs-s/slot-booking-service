@@ -12,5 +12,5 @@ type UserRepo interface {
 }
 
 type TokenRepo interface {
-	SetCachedToken(ctx context.Context, userId, token string) error
+	SetCachedToken(ctx context.Context, userId, sessionId, token string) error
 }

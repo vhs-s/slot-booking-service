@@ -2,11 +2,55 @@
 
 {{template "header" .}}
 
-<h1>LinkTime</h1>
+<section class="dashboard-page">
+    <div class="dashboard-heading">
+        <h1>Встречи</h1>
+        <p>{{.Name}}, здесь отображаются встречи, которые назначили вам. По умолчанию показаны только предстоящие.</p>
+    </div>
 
-<p>
-    Добро пожаловать, {{ .Name}}!.<br>
-</p>
+    <form class="meeting-filter" method="get">
+        <label class="meeting-filter__label" for="meeting-status">Статус встреч</label>
+        <div class="meeting-filter__controls">
+            <select id="meeting-status" name="status">
+                {{range .StatusOptions}}
+                    <option value="{{.Value}}" {{if .Selected}}selected{{end}}>{{.Label}}</option>
+                {{end}}
+            </select>
+            <button type="submit">Показать</button>
+        </div>
+    </form>
+
+    {{if .Meetings}}
+        <div class="meeting-list">
+            {{range .Meetings}}
+                <article class="meeting-card">
+                    <div class="meeting-card__header">
+                        <h2>{{.Topic}}</h2>
+                        <span class="meeting-card__status">{{.Status}}</span>
+                    </div>
+
+                    <p class="meeting-card__time">{{.Date}}, {{.StartTime}}–{{.EndTime}}</p>
+                    <p class="meeting-card__guest">
+                        Гость: <strong>{{.GuestName}}</strong><br>
+                        Email: <a href="mailto:{{.GuestEmail}}">{{.GuestEmail}}</a>
+                    </p>
+                    {{if .Comment}}
+                        <p class="meeting-card__comment">{{.Comment}}</p>
+                    {{end}}
+                    {{if .CanJoin}}
+                        <a class="meeting-card__link" href="{{.JoinURL}}" target="_blank" rel="noopener noreferrer">
+                            Подключиться к телемосту →
+                        </a>
+                    {{else}}
+                        <p class="meeting-card__closed">Подключение к этой встрече недоступно.</p>
+                    {{end}}
+                </article>
+            {{end}}
+        </div>
+    {{else}}
+        <div class="meeting-empty">{{.EmptyMessage}}</div>
+    {{end}}
+</section>
 
 {{template "footer" .}}
 {{end}}

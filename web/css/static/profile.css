@@ -103,6 +103,14 @@
     font-weight: 600;
 }
 
+.profile-calendar-link {
+    color: #6257e8;
+}
+
+.profile-calendar-link:hover {
+    text-decoration: underline;
+}
+
 .profile-id {
     font-family: monospace;
     font-size: 13px;

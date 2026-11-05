@@ -17,7 +17,7 @@ type GetUserDto struct {
 
 func ToGetUserDto(ue *user.User) *GetUserDto {
 	return &GetUserDto{
-		Id:        ue.Id, // Если в entity ID типа int/uuid, добавь конвертацию (например, strconv.Itoa или .String())
+		Id:        ue.Id,
 		Name:      ue.Name,
 		Email:     ue.Email,
 		CreatedAt: ue.CreatedAt,

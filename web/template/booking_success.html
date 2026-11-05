@@ -1,0 +1,35 @@
+{{define "booking_success"}}
+
+{{template "header" .}}
+
+<section class="booking-page booking-success">
+    <div class="booking-card">
+        <span class="booking-success__icon" aria-hidden="true">✓</span>
+        <h1>Встреча забронирована</h1>
+        <p>Вы назначили встречу с {{.HostName}}.</p>
+
+        <dl class="booking-success__details">
+            <div>
+                <dt>Тема</dt>
+                <dd>{{.Booking.Topic}}</dd>
+            </div>
+            <div>
+                <dt>Дата и время</dt>
+                <dd>{{.DateTime}}</dd>
+            </div>
+            <div>
+                <dt>Участник</dt>
+                <dd>{{.Booking.GuestName}} ({{.Booking.GuestEmail}})</dd>
+            </div>
+        </dl>
+
+        <a class="booking-submit booking-success__link" href="{{.Booking.MeetingURL}}" target="_blank" rel="noopener noreferrer">
+            Перейти к телемосту
+        </a>
+        <p class="booking-success__hint">Сохраните ссылку: она понадобится для подключения ко встрече.</p>
+        <a class="booking-success__back" href="/book/{{.CalendarUserId}}">Вернуться в календарь</a>
+    </div>
+</section>
+
+{{template "footer" .}}
+{{end}}
