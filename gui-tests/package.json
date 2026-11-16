@@ -1,0 +1,16 @@
+{
+  "name": "slot-booking-gui-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GUI tests for laboratory work 4, task 5",
+  "scripts": {
+    "install:browser": "node run-playwright.cjs install chromium",
+    "test": "node run-playwright.cjs test",
+    "test:headed": "node run-playwright.cjs test --headed",
+    "report": "node run-playwright.cjs show-report ../results/gui/playwright-report --host 127.0.0.1",
+    "report:screenshot": "node capture-report.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}
